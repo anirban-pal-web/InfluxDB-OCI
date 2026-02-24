@@ -1,0 +1,4 @@
+---
+influx_org: "my-org"
+influx_bucket: "my-bucket"
+influx_port: 8086

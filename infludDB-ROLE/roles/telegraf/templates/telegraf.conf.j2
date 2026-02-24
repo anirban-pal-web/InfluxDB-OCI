@@ -1,0 +1,20 @@
+[agent]
+  interval = "10s"
+  flush_interval = "10s"
+  hostname = "{{ inventory_hostname }}"
+
+[[outputs.influxdb_v2]]
+  urls = ["http://{{ lookup('env','INFLUX_HOST') }}:{{ influx_port }}"]
+  token = "{{ lookup('env','INFLUX_TOKEN') }}"
+  organization = "{{ influx_org }}"
+  bucket = "{{ influx_bucket }}"
+
+[[inputs.cpu]]
+  percpu = true
+  totalcpu = true
+
+[[inputs.mem]]
+
+[[inputs.disk]]
+
+[[inputs.net]]
