@@ -80,7 +80,8 @@ module "primary_ec2" {
   key_name             = var.key_name
   security_group_id    = module.security_group.influx_sg_id
   iam_instance_profile = module.iam.instance_profile_name
-  user_data 	       = local.primary_user_data
+  user_data            = file("userdata-primary.sh")
+  instance_name        = "Influx-Primary"
 }
 
 module "dr_ec2" {
@@ -92,6 +93,7 @@ module "dr_ec2" {
   security_group_id    = module.security_group.influx_sg_id
   iam_instance_profile = module.iam.instance_profile_name
   user_data            = local.dr_user_data
+  instance_name        = "Influx-DR"
 }
 
 module "alb" {
