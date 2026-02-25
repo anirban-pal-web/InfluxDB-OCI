@@ -9,17 +9,24 @@ resource "aws_vpc_peering_connection" "this" {
 }
 
 # Routes in requester VPC
-resource "aws_route" "requester_routes" {
-  for_each = toset(var.requester_route_table_ids)
+resource "aws_route" "requester_private_route" {
+  route_table_id            = var.requester_route_table_ids[0]
+  destination_cidr_block    = var.peer_cidr_block
+  vpc_peering_connection_id = aws_vpc_peering_connection.this.id
+}
 
-  route_table_id            = each.value
+resource "aws_route" "requester_public_route" {
+  route_table_id            = var.requester_route_table_ids[1]
   destination_cidr_block    = var.peer_cidr_block
   vpc_peering_connection_id = aws_vpc_peering_connection.this.id
 }
 
 # Routes in peer VPC
-resource "aws_route" "peer_routes" {
-  for_each = toset(var.peer_route_table_ids)
+resource "aws_route" "peer_route" {
+  route_table_id            = var.peer_route_table_ids[0]
+  destination_cidr_block    = var.requester_cidr_block
+  vpc_peering_connection_id = aws_vpc_peering_connection.this.id
+}
 
   route_table_id            = each.value
   destination_cidr_block    = var.requester_cidr_block
