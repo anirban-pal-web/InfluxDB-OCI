@@ -12,6 +12,7 @@
 - name: Update apt cache safely before adding repo
   apt:
     update_cache: yes
+  ignore_errors: yes
 
 - name: Install dependencies
   apt:
