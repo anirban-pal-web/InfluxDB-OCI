@@ -38,6 +38,11 @@
         enabled: yes
         state: started
 
+   - name: Install Influx CLI
+       apt:
+       name: influxdb2-cli
+       state: present
+
     - name: Wait for InfluxDB port
       wait_for:
         port: "{{ influx_port }}"
