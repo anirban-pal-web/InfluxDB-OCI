@@ -9,29 +9,40 @@
     path: /usr/share/keyrings/influxdata-archive.key
     state: absent
 
+- name: Update apt cache safely before adding repo
+  apt:
+    update_cache: yes
+
 - name: Install dependencies
   apt:
     name:
       - curl
       - gnupg
     state: present
-    update_cache: yes
 
-- name: Add InfluxData GPG key
-  get_url:
-    url: https://repos.influxdata.com/influxdata-archive.key
-    dest: /usr/share/keyrings/influxdata-archive.key
+# ✅ Proper modern key installation
+- name: Add InfluxData GPG key (modern method)
+  shell: |
+    curl -fsSL https://repos.influxdata.com/influxdata-archive.key \
+    | gpg --dearmor \
+    | tee /usr/share/keyrings/influxdata-archive.key > /dev/null
+  args:
+    executable: /bin/bash
 
 - name: Add InfluxData repository
-  apt_repository:
-    repo: "deb [signed-by=/usr/share/keyrings/influxdata-archive.key] https://repos.influxdata.com/ubuntu jammy stable"
-    state: present
+  copy:
+    dest: /etc/apt/sources.list.d/influxdata.list
+    content: |
+      deb [signed-by=/usr/share/keyrings/influxdata-archive.key] https://repos.influxdata.com/ubuntu jammy stable
+
+- name: Update apt cache after adding repo
+  apt:
+    update_cache: yes
 
 - name: Install Telegraf
   apt:
     name: telegraf
     state: present
-    update_cache: yes
 
 - name: Fail if INFLUX_HOST not set
   fail:
