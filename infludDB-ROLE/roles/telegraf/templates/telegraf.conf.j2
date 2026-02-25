@@ -4,8 +4,8 @@
   hostname = "{{ inventory_hostname }}"
 
 [[outputs.influxdb_v2]]
-  urls = ["http://{{ lookup('env','INFLUX_HOST') }}:{{ influx_port }}"]
-  token = "{{ lookup('env','INFLUX_TOKEN') }}"
+  urls = ["http://{{ influx_host }}:{{ influx_port }}"]
+  token = "{{ influx_token }}"
   organization = "{{ influx_org }}"
   bucket = "{{ influx_bucket }}"
 
