@@ -84,14 +84,7 @@
       set_fact:
         influx_token: "{{ token_output.stdout }}"
 
-    - name: Share token to all hosts
-      add_host:
-        name: token_holder
-        influx_token: "{{ influx_token }}"
-        influx_org: "{{ influx_org }}"
-        influx_bucket: "{{ influx_bucket }}"
-        influx_port: "{{ influx_port }}"
-        influx_host: "{{ ansible_default_ipv4.address }}"
+
         
 ##############################################
 # PLAY 2 — Install Telegraf on All Other EC2
