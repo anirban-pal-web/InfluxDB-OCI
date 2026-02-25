@@ -26,6 +26,18 @@ variable "public_subnet_az2_cidr" {
   default = "10.0.3.0/24"
 }
 
+variable "ansible_vpc_id" {
+  type = string
+}
+
+variable "ansible_vpc_cidr" {
+  type = string
+}
+
+variable "ansible_route_table_ids" {
+  type = list(string)
+}
+
 variable "private_subnet_cidr" {
   default = "10.0.2.0/24"
 }
