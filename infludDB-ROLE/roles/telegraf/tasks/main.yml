@@ -45,16 +45,6 @@
     name: telegraf
     state: present
 
-- name: Fail if INFLUX_HOST not set
-  fail:
-    msg: "INFLUX_HOST environment variable is not set!"
-  when: lookup('env','INFLUX_HOST') == ""
-
-- name: Fail if INFLUX_TOKEN not set
-  fail:
-    msg: "INFLUX_TOKEN environment variable is not set!"
-  when: lookup('env','INFLUX_TOKEN') == ""
-
 - name: Deploy Telegraf config
   template:
     src: telegraf.conf.j2
