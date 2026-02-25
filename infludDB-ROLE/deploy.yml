@@ -1,3 +1,4 @@
+
 ---
 ##############################################
 # PLAY 1 — Setup InfluxDB on Primary Server
@@ -16,6 +17,11 @@
 
   tasks:
 
+    - name: Remove old Influx repository
+      file:
+        path: /etc/apt/sources.list.d/repos_influxdata_com_ubuntu.list
+        state: absent
+
     - name: Install dependencies
       apt:
         name:
@@ -32,16 +38,15 @@
       apt:
         deb: /tmp/influxdb2.deb
 
+    - name: Fix Influx CLI path
+      shell: |
+        ln -sf /usr/bin/influx /usr/local/bin/influx || true
+
     - name: Enable and Start InfluxDB
       systemd:
         name: influxdb
         enabled: yes
         state: started
-
-   - name: Install Influx CLI
-       apt:
-       name: influxdb2-cli
-       state: present
 
     - name: Wait for InfluxDB port
       wait_for:
@@ -80,10 +85,8 @@
         influx_org: "{{ influx_org }}"
         influx_bucket: "{{ influx_bucket }}"
         influx_port: "{{ influx_port }}"
-        influx_host: "{{ inventory_hostname }}"
-
-
-
+        influx_host: "{{ ansible_default_ipv4.address }}"
+---
 ##############################################
 # PLAY 2 — Install Telegraf on All Other EC2
 ##############################################
