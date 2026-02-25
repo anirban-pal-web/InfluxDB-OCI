@@ -125,3 +125,20 @@ module "bastion" {
   bastion_sg_id     = module.security_group.bastion_sg_id
   key_name          = var.key_name
 }
+
+module "vpc_peering" {
+  source = "./modules/vpc-peering"
+
+  requester_vpc_id        = module.vpc.vpc_id
+  peer_vpc_id             = var.ansible_vpc_id
+
+  requester_route_table_ids = [
+    module.vpc.private_route_table_id,
+    module.vpc.public_route_table_id
+  ]
+
+  peer_route_table_ids = var.ansible_route_table_ids
+
+  peer_cidr_block       = var.ansible_vpc_cidr
+  requester_cidr_block  = var.vpc_cidr
+}
