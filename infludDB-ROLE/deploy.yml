@@ -1,5 +1,98 @@
 ---
-- hosts: all
+##############################################
+# PLAY 1 — Setup InfluxDB on Primary Server
+##############################################
+
+- name: Install and Configure InfluxDB on Primary
+  hosts: _Influx_Primary
   become: yes
+
+  vars:
+    influx_org: "my-org"
+    influx_bucket: "my-bucket"
+    influx_user: "admin"
+    influx_pass: "Admin@123"
+    influx_port: 8086
+
+  tasks:
+
+    - name: Install dependencies
+      apt:
+        name:
+          - curl
+          - jq
+        update_cache: yes
+
+    - name: Download InfluxDB
+      get_url:
+        url: https://dl.influxdata.com/influxdb/releases/influxdb2_2.7.5-1_amd64.deb
+        dest: /tmp/influxdb2.deb
+
+    - name: Install InfluxDB
+      apt:
+        deb: /tmp/influxdb2.deb
+
+    - name: Enable and Start InfluxDB
+      systemd:
+        name: influxdb
+        enabled: yes
+        state: started
+
+    - name: Wait for InfluxDB port
+      wait_for:
+        port: "{{ influx_port }}"
+        timeout: 60
+
+    - name: Initial Setup (Only first time)
+      shell: |
+        influx setup \
+          --username {{ influx_user }} \
+          --password {{ influx_pass }} \
+          --org {{ influx_org }} \
+          --bucket {{ influx_bucket }} \
+          --retention 0 \
+          --force
+      args:
+        creates: /root/.influxdbv2/configs
+
+    - name: Generate Telegraf Token
+      shell: |
+        influx auth create \
+          --org {{ influx_org }} \
+          --write-bucket {{ influx_bucket }} \
+          --description "telegraf-token" \
+          --json | jq -r '.token'
+      register: token_output
+
+    - name: Save token in memory
+      set_fact:
+        influx_token: "{{ token_output.stdout }}"
+
+    - name: Share token to all hosts
+      add_host:
+        name: token_holder
+        influx_token: "{{ influx_token }}"
+        influx_org: "{{ influx_org }}"
+        influx_bucket: "{{ influx_bucket }}"
+        influx_port: "{{ influx_port }}"
+        influx_host: "{{ inventory_hostname }}"
+
+
+
+##############################################
+# PLAY 2 — Install Telegraf on All Other EC2
+##############################################
+
+- name: Install and Configure Telegraf on All Other Hosts
+  hosts: all:!_Influx_Primary
+  become: yes
+
+  vars:
+    influx_token: "{{ hostvars['token_holder']['influx_token'] }}"
+    influx_org: "{{ hostvars['token_holder']['influx_org'] }}"
+    influx_bucket: "{{ hostvars['token_holder']['influx_bucket'] }}"
+    influx_port: "{{ hostvars['token_holder']['influx_port'] }}"
+    influx_host: "{{ hostvars['token_holder']['influx_host'] }}"
+
   roles:
     - telegraf
