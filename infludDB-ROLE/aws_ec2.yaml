@@ -1,4 +1,3 @@
-
 ---
 plugin: amazon.aws.aws_ec2
 
@@ -8,6 +7,5 @@ regions:
 filters:
   instance-state-name: running
 
-compose:
-  ansible_host: public-ip-address
-ubuntu@ip-172-31-3-87:~/Ansible$
+keyed_groups:
+  - key: tags.Name
