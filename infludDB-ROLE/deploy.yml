@@ -36,10 +36,11 @@
     - name: Install InfluxDB
       apt:
         deb: /tmp/influxdb2.deb
-
-    - name: Fix Influx CLI path
-      shell: |
-        ln -sf /usr/bin/influx /usr/local/bin/influx || true
+    - name: Install Influx CLI package
+      apt:
+        name: influxdb2-cli
+        state: present
+        update_cache: yes
 
     - name: Enable and Start InfluxDB
       systemd:
