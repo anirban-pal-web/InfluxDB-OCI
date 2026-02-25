@@ -65,11 +65,17 @@
       args:
         creates: /root/.influxdbv2/configs
 
+    - name: Get Bucket ID
+      shell: |
+        influx bucket list --org {{ influx_org }} --json | \
+        jq -r '.[] | select(.name=="{{ influx_bucket }}") | .id'
+      register: bucket_id_output
+
     - name: Generate Telegraf Token
       shell: |
         influx auth create \
           --org {{ influx_org }} \
-          --write-bucket {{ influx_bucket }} \
+          --write-bucket {{ bucket_id_output.stdout }} \
           --description "telegraf-token" \
           --json | jq -r '.token'
       register: token_output
@@ -96,11 +102,11 @@
   become: yes
 
   vars:
-    influx_token: "{{ hostvars['token_holder']['influx_token'] }}"
-    influx_org: "{{ hostvars['token_holder']['influx_org'] }}"
-    influx_bucket: "{{ hostvars['token_holder']['influx_bucket'] }}"
-    influx_port: "{{ hostvars['token_holder']['influx_port'] }}"
-    influx_host: "{{ hostvars['token_holder']['influx_host'] }}"
+    influx_token: "{{ hostvars[groups['_Influx_Primary'][0]].influx_token }}"
+    influx_org: "my-org"
+    influx_bucket: "my-bucket"
+    influx_port: 8086
+    influx_host: "{{ hostvars[groups['_Influx_Primary'][0]].ansible_default_ipv4.address }}"
 
   roles:
     - telegraf
