@@ -1,5 +1,4 @@
 
----
 ##############################################
 # PLAY 1 — Setup InfluxDB on Primary Server
 ##############################################
@@ -86,7 +85,7 @@
         influx_bucket: "{{ influx_bucket }}"
         influx_port: "{{ influx_port }}"
         influx_host: "{{ ansible_default_ipv4.address }}"
----
+        
 ##############################################
 # PLAY 2 — Install Telegraf on All Other EC2
 ##############################################
