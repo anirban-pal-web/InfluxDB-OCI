@@ -4,7 +4,7 @@
 ##############################################
 
 - name: Install and Configure InfluxDB on Primary
-  hosts: _Influx_Primary
+  hosts: Influx-Primary
   become: yes
 
   vars:
@@ -84,7 +84,7 @@
 ##############################################
 
 - name: Install and Configure Telegraf on All Other Hosts
-  hosts: all:!_Influx_Primary
+  hosts: all:!Influx-Primary
   become: yes
 
   vars:
