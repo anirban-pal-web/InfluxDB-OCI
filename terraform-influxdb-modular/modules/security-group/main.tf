@@ -44,11 +44,12 @@ resource "aws_security_group" "influx_sg" {
     security_groups = [aws_security_group.bastion_sg.id]
   }
 
+  # 🔥 Open 8086 from anywhere
   ingress {
-    from_port       = 8086
-    to_port         = 8086
-    protocol        = "tcp"
-    security_groups = [aws_security_group.alb_sg.id]
+    from_port   = 8086
+    to_port     = 8086
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
   }
 
   egress {
@@ -58,4 +59,3 @@ resource "aws_security_group" "influx_sg" {
     cidr_blocks = ["0.0.0.0/0"]
   }
 }
-
