@@ -36,11 +36,26 @@
     - name: Install InfluxDB
       apt:
         deb: /tmp/influxdb2.deb
-    - name: Install Influx CLI package
-      apt:
-        name: influxdb-client
-        state: present
-        update_cache: yes
+        - name: Download Influx CLI (latest stable binary)
+      get_url:
+        url: https://dl.influxdata.com/influxdb/releases/influxdb2-client-latest-linux-amd64.tar.gz
+        dest: /tmp/influxdb2-client.tar.gz
+
+    - name: Extract Influx CLI
+      unarchive:
+        src: /tmp/influxdb2-client.tar.gz
+        dest: /tmp/
+        remote_src: yes
+
+    - name: Move Influx CLI binary to /usr/local/bin
+      copy:
+        src: /tmp/influx
+        dest: /usr/local/bin/influx
+        mode: '0755'
+        remote_src: yes
+
+    - name: Verify Influx CLI installation
+      command: influx version
 
     - name: Enable and Start InfluxDB
       systemd:
