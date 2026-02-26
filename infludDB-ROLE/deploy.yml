@@ -36,7 +36,8 @@
     - name: Install InfluxDB
       apt:
         deb: /tmp/influxdb2.deb
-        - name: Download Influx CLI (latest stable binary)
+        
+    - name: Download Influx CLI (latest stable binary)
       get_url:
         url: https://dl.influxdata.com/influxdb/releases/influxdb2-client-latest-linux-amd64.tar.gz
         dest: /tmp/influxdb2-client.tar.gz
