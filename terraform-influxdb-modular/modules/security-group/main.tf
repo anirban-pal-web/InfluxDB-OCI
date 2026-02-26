@@ -37,6 +37,7 @@ resource "aws_security_group" "bastion_sg" {
 resource "aws_security_group" "influx_sg" {
   vpc_id = var.vpc_id
 
+  # SSH from Bastion SG
   ingress {
     from_port       = 22
     to_port         = 22
@@ -44,7 +45,15 @@ resource "aws_security_group" "influx_sg" {
     security_groups = [aws_security_group.bastion_sg.id]
   }
 
-  # 🔥 Open 8086 from anywhere
+  # SSH from Peered VPC CIDR
+  ingress {
+    from_port   = 22
+    to_port     = 22
+    protocol    = "tcp"
+    cidr_blocks = ["172.31.0.0/16"]
+  }
+
+  # 8086 open
   ingress {
     from_port   = 8086
     to_port     = 8086
