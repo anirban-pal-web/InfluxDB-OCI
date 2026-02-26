@@ -38,7 +38,7 @@
         deb: /tmp/influxdb2.deb
     - name: Install Influx CLI package
       apt:
-        name: influxdb2-cli
+        name: influxdb-client
         state: present
         update_cache: yes
 
