@@ -114,9 +114,14 @@ pipeline {
             }
             agent { label 'ansible-agent' }
             steps {
+                cleanWs()
                 dir("${ANSIBLE_DIR}") {
                     sh """
                         export PATH=\$PATH:/home/ubuntu/.local/bin
+                        pwd
+                        ls -l
+                        cd ansible-code/infludDB-ROLE
+                        ls -l
                         ansible-playbook deploy.yml 
                     """
                 }
