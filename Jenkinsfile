@@ -6,20 +6,24 @@ pipeline {
         TF_BRANCH       = 'master'
         ANSIBLE_BRANCH  = 'role'
         TF_DIR          = 'terraform-influxdb-modular'
-        ANSIBLE_DIR     = 'ansible-code/infludDB-ROLE/infludDB-ROLE'
         TF_BINARY       = '/usr/bin/terraform'
     }
 
     stages {
 
+        // ==============================
+        // TERRAFORM STAGES (built-in)
+        // ==============================
+
         stage('Checkout Terraform') {
             agent { label 'built-in' }
             steps {
+                cleanWs()
                 git branch: "${TF_BRANCH}", url: "${REPO_URL}"
             }
         }
 
-        stage('Terraform FMT & Validate') {
+        stage('Terraform FMT, Init & Validate') {
             agent { label 'built-in' }
             steps {
                 dir("${TF_DIR}") {
@@ -98,35 +102,39 @@ pipeline {
             }
         }
 
-        stage('Checkout Ansible') {
-            when {
-                expression { env.ACTION == 'apply' }
-            }
-            agent { label 'ansible-agent' }
-            steps {
-                git branch: "${ANSIBLE_BRANCH}", url: "${REPO_URL}"
-            }
-        }
+        // ==============================
+        // ANSIBLE STAGES (ansible-agent)
+        // ==============================
 
-        stage('Run Ansible') {
+        stage('Checkout Ansible (role branch)') {
             when {
                 expression { env.ACTION == 'apply' }
             }
             agent { label 'ansible-agent' }
             steps {
                 cleanWs()
-                dir("${ANSIBLE_DIR}") {
-                    sh """
-                        export PATH=\$PATH:/home/ubuntu/.local/bin
-                        pwd
-                        ls -l
-                        cd ansible-code/infludDB-ROLE
-                        ls -l
-                        ansible-playbook deploy.yml 
-                    """
-                }
+                git branch: "${ANSIBLE_BRANCH}", url: "${REPO_URL}"
             }
         }
+
+        stage('Run Ansible Playbook') {
+            when {
+                expression { env.ACTION == 'apply' }
+            }
+            agent { label 'ansible-agent' }
+            steps {
+                sh """
+                    export PATH=\$PATH:/home/ubuntu/.local/bin
+                    pwd
+                    ls -l
+                    ansible-playbook deploy.yml
+                """
+            }
+        }
+
+        // ==============================
+        // HEALTH CHECK
+        // ==============================
 
         stage('Health Check') {
             when {
@@ -138,6 +146,10 @@ pipeline {
             }
         }
     }
+
+    // ==============================
+    // POST SECTION
+    // ==============================
 
     post {
 
