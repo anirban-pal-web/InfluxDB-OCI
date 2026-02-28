@@ -142,4 +142,56 @@ pipeline {
             }
         }
     }
+
+    post {
+
+        success {
+            emailext(
+                subject: "✅ ${params.ENVIRONMENT.toUpperCase()} ${env.ACTION?.toUpperCase()} SUCCESS | Build #${env.BUILD_NUMBER}",
+                body: """
+Environment : ${params.ENVIRONMENT}
+Action      : ${env.ACTION}
+Primary IP  : ${env.INFLUX_HOST}
+ALB URL     : ${env.ALB_URL}
+Build       : ${env.BUILD_NUMBER}
+
+Status: SUCCESS ✅
+""",
+                to: "anirbanp@gmail.com"
+            )
+        }
+
+        failure {
+            emailext(
+                subject: "❌ ${params.ENVIRONMENT.toUpperCase()} ${env.ACTION?.toUpperCase()} FAILED | Build #${env.BUILD_NUMBER}",
+                body: """
+Environment : ${params.ENVIRONMENT}
+Action      : ${env.ACTION}
+Build       : ${env.BUILD_NUMBER}
+
+Status: FAILED ❌
+Check Jenkins Console Logs.
+""",
+                to: "anirbanp@gmail.com"
+            )
+        }
+
+        aborted {
+            emailext(
+                subject: "⚠️ BUILD ABORTED | Build #${env.BUILD_NUMBER}",
+                body: """
+Environment : ${params.ENVIRONMENT}
+Action      : ${env.ACTION}
+Build       : ${env.BUILD_NUMBER}
+
+Pipeline was aborted.
+""",
+                to: "anirbanp@gmail.com"
+            )
+        }
+
+        always {
+            echo "Pipeline completed at ${new Date()}"
+        }
+    }
 }
