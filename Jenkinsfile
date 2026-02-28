@@ -103,32 +103,35 @@ pipeline {
         }
 
         // ==============================
-        // ANSIBLE STAGES (ansible-agent)
+        // ANSIBLE STAGE (role branch)
         // ==============================
 
-        stage('Checkout Ansible (role branch)') {
+        stage('Run Ansible (role branch)') {
             when {
                 expression { env.ACTION == 'apply' }
             }
             agent { label 'ansible-agent' }
             steps {
-                cleanWs()
-                git branch: "${ANSIBLE_BRANCH}", url: "${REPO_URL}"
-            }
-        }
 
-        stage('Run Ansible Playbook') {
-            when {
-                expression { env.ACTION == 'apply' }
-            }
-            agent { label 'ansible-agent' }
-            steps {
-                sh """
-                    export PATH=\$PATH:/home/ubuntu/.local/bin
-                    pwd
-                    ls -l
-                    ansible-playbook deploy.yml
-                """
+                dir('role-branch') {
+
+                    deleteDir()
+
+                    checkout([
+                        $class: 'GitSCM',
+                        branches: [[name: "*/${ANSIBLE_BRANCH}"]],
+                        userRemoteConfigs: [[
+                            url: "${REPO_URL}"
+                        ]]
+                    ])
+
+                    sh """
+                        export PATH=\$PATH:/home/ubuntu/.local/bin
+                        pwd
+                        ls -l
+                        ansible-playbook infludDB-ROLE/deploy.yml
+                    """
+                }
             }
         }
 
