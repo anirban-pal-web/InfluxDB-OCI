@@ -126,10 +126,12 @@ pipeline {
                     ])
 
                     sh """
-                        export PATH=\$PATH:/home/ubuntu/.local/bin
-                        pwd
-                        ls -l
-                        ansible-playbook -i infludDB-ROLE/aws_ec2.yaml infludDB-ROLE/deploy.yml
+                          export PATH=\$PATH:/home/ubuntu/.local/bin
+                          ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook \
+                          -i infludDB-ROLE/aws_ec2.yaml \
+                          --private-key=/home/ubuntu/Ansible/test15.pem \
+                          -u ubuntu \
+                          infludDB-ROLE/deploy.yml
                     """
                 }
             }
