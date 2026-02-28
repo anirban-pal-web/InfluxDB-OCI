@@ -1,14 +1,6 @@
 pipeline {
     agent none
 
-    parameters {
-        choice(
-            name: 'ENVIRONMENT',
-            choices: ['dev', 'stage', 'prod'],
-            description: 'Select Environment'
-        )
-    }
-
     environment {
         REPO_URL        = 'https://github.com/anirban-pal-web/InfluxDB-OCI.git'
         TF_BRANCH       = 'master'
@@ -61,7 +53,7 @@ pipeline {
             agent { label 'built-in' }
             steps {
                 dir("${TF_DIR}") {
-                    sh "${TF_BINARY} plan -out=tfplan -var-file=${params.ENVIRONMENT}.tfvars"
+                    sh "${TF_BINARY} plan -out=tfplan"
                 }
             }
         }
@@ -70,7 +62,7 @@ pipeline {
             agent { label 'built-in' }
             steps {
                 script {
-                    input message: "Approve ${env.ACTION} for ${params.ENVIRONMENT}?"
+                    input message: "Approve ${env.ACTION}?"
                 }
             }
         }
@@ -98,7 +90,7 @@ pipeline {
                         } else {
 
                             input message: "⚠️ Confirm Destroy?"
-                            sh "${TF_BINARY} destroy -auto-approve -var-file=${params.ENVIRONMENT}.tfvars"
+                            sh "${TF_BINARY} destroy -auto-approve"
 
                         }
                     }
@@ -125,8 +117,7 @@ pipeline {
                 dir("${ANSIBLE_DIR}") {
                     sh """
                         ansible-playbook deploy.yml \
-                        -e influx_host=${INFLUX_HOST} \
-                        -e env=${params.ENVIRONMENT}
+                        -e influx_host=${INFLUX_HOST}
                     """
                 }
             }
@@ -147,9 +138,8 @@ pipeline {
 
         success {
             emailext(
-                subject: "✅ ${params.ENVIRONMENT.toUpperCase()} ${env.ACTION?.toUpperCase()} SUCCESS | Build #${env.BUILD_NUMBER}",
+                subject: "✅ ${env.ACTION?.toUpperCase()} SUCCESS | Build #${env.BUILD_NUMBER}",
                 body: """
-Environment : ${params.ENVIRONMENT}
 Action      : ${env.ACTION}
 Primary IP  : ${env.INFLUX_HOST}
 ALB URL     : ${env.ALB_URL}
@@ -163,9 +153,8 @@ Status: SUCCESS ✅
 
         failure {
             emailext(
-                subject: "❌ ${params.ENVIRONMENT.toUpperCase()} ${env.ACTION?.toUpperCase()} FAILED | Build #${env.BUILD_NUMBER}",
+                subject: "❌ ${env.ACTION?.toUpperCase()} FAILED | Build #${env.BUILD_NUMBER}",
                 body: """
-Environment : ${params.ENVIRONMENT}
 Action      : ${env.ACTION}
 Build       : ${env.BUILD_NUMBER}
 
@@ -180,7 +169,6 @@ Check Jenkins Console Logs.
             emailext(
                 subject: "⚠️ BUILD ABORTED | Build #${env.BUILD_NUMBER}",
                 body: """
-Environment : ${params.ENVIRONMENT}
 Action      : ${env.ACTION}
 Build       : ${env.BUILD_NUMBER}
 
