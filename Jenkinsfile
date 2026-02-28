@@ -116,8 +116,8 @@ pipeline {
             steps {
                 dir("${ANSIBLE_DIR}") {
                     sh """
-                        ansible-playbook deploy.yml \
-                        -e influx_host=${INFLUX_HOST}
+                        export PATH=\$PATH:/home/ubuntu/.local/bin
+                        ansible-playbook deploy.yml 
                     """
                 }
             }
