@@ -157,7 +157,7 @@ Build       : ${env.BUILD_NUMBER}
 
 Status: SUCCESS ✅
 """,
-                to: "anirbanp@gmail.com"
+                to: "mr.anirbanp@gmail.com"
             )
         }
 
@@ -172,7 +172,7 @@ Build       : ${env.BUILD_NUMBER}
 Status: FAILED ❌
 Check Jenkins Console Logs.
 """,
-                to: "anirbanp@gmail.com"
+                to: "mr.anirbanp@gmail.com"
             )
         }
 
@@ -186,7 +186,7 @@ Build       : ${env.BUILD_NUMBER}
 
 Pipeline was aborted.
 """,
-                to: "anirbanp@gmail.com"
+                to: "mr.anirbanp@gmail.com"
             )
         }
 
