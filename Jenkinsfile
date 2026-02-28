@@ -129,7 +129,7 @@ pipeline {
                         export PATH=\$PATH:/home/ubuntu/.local/bin
                         pwd
                         ls -l
-                        ansible-playbook infludDB-ROLE/deploy.yml
+                        ansible-playbook -i infludDB-ROLE/aws_ec2.yaml infludDB-ROLE/deploy.yml
                     """
                 }
             }
